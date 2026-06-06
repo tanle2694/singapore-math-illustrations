@@ -1,0 +1,456 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bài toán tuổi bố và con</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#eef9ff;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 0 15px rgba(0,0,0,.1);
+}
+
+h1{
+    text-align:center;
+    color:#2563eb;
+}
+
+.input-panel{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input-group label{
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.input-group input{
+    width:120px;
+    padding:8px;
+    font-size:18px;
+}
+
+.timeline{
+    margin:20px 0;
+}
+
+#timeText{
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.slider-container{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+#slider{
+    flex:1;
+}
+
+.step-btn{
+    width:50px;
+    height:50px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.step-btn:hover{
+    opacity:.9;
+}
+
+.row{
+    margin:40px 0;
+}
+
+.label{
+    font-size:26px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.bar-wrapper{
+    position:relative;
+}
+
+.bar{
+    display:flex;
+    height:70px;
+    overflow:hidden;
+    border-radius:12px;
+}
+
+.segment{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:20px;
+    font-weight:bold;
+    transition:all .4s ease;
+}
+
+.same{
+    background:#60a5fa;
+}
+
+.extra{
+    background:#ef4444;
+}
+
+.child{
+    background:#f59e0b;
+}
+
+.marker{
+    position:absolute;
+    top:-10px;
+    width:0;
+    height:90px;
+    border-left:4px dashed #111827;
+    z-index:10;
+}
+
+.marker-label{
+    position:absolute;
+    top:-35px;
+    left:-35px;
+    width:70px;
+    text-align:center;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.formula{
+    margin-top:30px;
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
+    color:#dc2626;
+}
+
+.note{
+    margin-top:25px;
+    padding:20px;
+    background:#ecfeff;
+    border-radius:12px;
+    font-size:20px;
+    line-height:1.8;
+}
+
+.highlight{
+    color:#dc2626;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>👨🧒 Bài Toán Tuổi Bố Và Con</h1>
+
+<div class="input-panel">
+
+    <div class="input-group">
+        <label>Tuổi bố hiện tại</label>
+        <input
+            id="fatherInput"
+            type="number"
+            min="1"
+            value="40">
+    </div>
+
+    <div class="input-group">
+        <label>Tuổi con hiện tại</label>
+        <input
+            id="childInput"
+            type="number"
+            min="0"
+            value="10">
+    </div>
+
+</div>
+
+<div class="timeline">
+
+    <div id="timeText">
+        📍 Hiện tại
+    </div>
+
+    <div class="slider-container">
+
+        <button
+            id="minusBtn"
+            class="step-btn">
+            −
+        </button>
+
+        <input
+            type="range"
+            id="slider"
+            min="-20"
+            max="30"
+            value="0">
+
+        <button
+            id="plusBtn"
+            class="step-btn">
+            +
+        </button>
+
+    </div>
+
+</div>
+
+<!-- BỐ -->
+
+<div class="row">
+
+    <div
+        id="fatherLabel"
+        class="label">
+        👨 Bố (40 tuổi)
+    </div>
+
+    <div class="bar-wrapper">
+
+        <div class="bar">
+
+            <div
+                id="fatherSame"
+                class="segment same">
+            </div>
+
+            <div
+                id="fatherExtra"
+                class="segment extra">
+            </div>
+
+        </div>
+
+        <div
+            id="fatherMarker"
+            class="marker">
+
+            <div class="marker-label">
+                Hiện tại
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CON -->
+
+<div class="row">
+
+    <div
+        id="childLabel"
+        class="label">
+        🧒 Con (10 tuổi)
+    </div>
+
+    <div class="bar-wrapper">
+
+        <div class="bar">
+
+            <div
+                id="childBar"
+                class="segment child">
+            </div>
+
+        </div>
+
+        <div
+            id="childMarker"
+            class="marker">
+
+            <div class="marker-label">
+                Hiện tại
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="formula"
+    class="formula">
+</div>
+
+<div
+    id="note"
+    class="note">
+</div>
+
+</div>
+
+<script>
+
+const scale = 12;
+
+const slider = document.getElementById("slider");
+const plusBtn = document.getElementById("plusBtn");
+const minusBtn = document.getElementById("minusBtn");
+
+const fatherInput = document.getElementById("fatherInput");
+const childInput = document.getElementById("childInput");
+
+plusBtn.addEventListener("click", () => {
+
+    let value = Number(slider.value);
+
+    if(value < Number(slider.max)){
+        slider.value = value + 1;
+        update();
+    }
+
+});
+
+minusBtn.addEventListener("click", () => {
+
+    let value = Number(slider.value);
+
+    if(value > Number(slider.min)){
+        slider.value = value - 1;
+        update();
+    }
+
+});
+
+function update(){
+
+    const fatherNow =
+        Number(fatherInput.value);
+
+    const childNow =
+        Number(childInput.value);
+
+    if(fatherNow <= childNow){
+
+        formula.innerHTML =
+            "⚠️ Tuổi bố phải lớn hơn tuổi con";
+
+        return;
+    }
+
+    const years =
+        Number(slider.value);
+
+    const father =
+        fatherNow + years;
+
+    const child =
+        childNow + years;
+
+    const diff =
+        fatherNow - childNow;
+
+    if(years === 0){
+        timeText.innerHTML = "📍 Hiện tại";
+    }
+    else if(years > 0){
+        timeText.innerHTML = `⏩ Sau ${years} năm`;
+    }
+    else{
+        timeText.innerHTML = `⏪ ${Math.abs(years)} năm trước`;
+    }
+
+    fatherLabel.innerHTML =
+        `👨 Bố (${father} tuổi)`;
+
+    childLabel.innerHTML =
+        `🧒 Con (${child} tuổi)`;
+
+    childBar.style.width =
+        (child * scale) + "px";
+
+    fatherSame.style.width =
+        (child * scale) + "px";
+
+    fatherExtra.style.width =
+        (diff * scale) + "px";
+
+    fatherExtra.innerHTML =
+        `+ ${diff} tuổi`;
+
+    fatherMarker.style.left =
+        (fatherNow * scale) + "px";
+
+    childMarker.style.left =
+        (childNow * scale) + "px";
+
+    formula.innerHTML =
+        `${father} − ${child} = ${diff} tuổi`;
+
+    note.innerHTML = `
+        💡 Thanh màu cam biểu diễn tuổi của con.
+
+        <br><br>
+
+        🟦 Phần màu xanh của bố dài đúng bằng tuổi của con.
+
+        <br><br>
+
+        🟥 Phần màu đỏ là phần bố nhiều hơn con:
+        <span class="highlight">${diff} tuổi</span>.
+
+        <br><br>
+
+        Đường nét đứt đánh dấu vị trí tuổi hiện tại ban đầu.
+
+        <br><br>
+
+        👉 Hiệu số tuổi luôn là
+        <span class="highlight">${diff} tuổi</span>.
+    `;
+}
+
+slider.addEventListener("input", update);
+fatherInput.addEventListener("input", update);
+childInput.addEventListener("input", update);
+
+update();
+
+</script>
+
+</body>
+</html>
+```
