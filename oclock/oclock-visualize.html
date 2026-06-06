@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singapore Math - Time Difference</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:30px;
+    font-family:Arial,sans-serif;
+    background:#f2f7ff;
+}
+
+h1{
+    text-align:center;
+    color:#2d4b8f;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+.clocks{
+    display:flex;
+    gap:30px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+    text-align:center;
+}
+
+canvas{
+    cursor:pointer;
+}
+
+input[type=time]{
+    display:none;
+}
+
+.time-display{
+    margin-top:14px;
+    font-size:34px;
+    font-weight:bold;
+    color:#2d4b8f;
+    letter-spacing:1px;
+}
+
+.ampm-tag{
+    display:inline-block;
+    padding:3px 12px;
+    border-radius:10px;
+    font-size:22px;
+    font-weight:bold;
+    margin-left:8px;
+    vertical-align:middle;
+}
+
+.ampm-tag.am{
+    background:#ddeeff;
+    color:#2255cc;
+}
+
+.ampm-tag.pm{
+    background:#ffe4cc;
+    color:#cc5500;
+}
+
+.sim-btn{
+    margin-top:14px;
+    padding:10px 28px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:#22aa55;
+    color:white;
+    cursor:pointer;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.sim-btn.running{
+    background:#dd3333;
+}
+
+.controls{
+    text-align:center;
+    margin:25px;
+}
+
+button{
+    padding:12px 24px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:#4f7cff;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.timeline-box{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    margin-top:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+
+.timeline{
+    position:relative;
+    height:120px;
+}
+
+.line{
+    position:absolute;
+    top:50px;
+    left:5%;
+    width:90%;
+    height:6px;
+    background:#d9e4ff;
+    border-radius:10px;
+}
+
+.point{
+    position:absolute;
+    top:35px;
+    transform:translateX(-50%);
+}
+
+.dot{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#4f7cff;
+    margin:auto;
+}
+
+.time{
+    margin-top:8px;
+    font-weight:bold;
+}
+
+.jump{
+    position:absolute;
+    top:75px;
+    color:#ff6600;
+    font-weight:bold;
+    transform:translateX(-50%);
+}
+
+.result{
+    margin-top:25px;
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+
+.big{
+    font-size:36px;
+    color:#2d4b8f;
+    font-weight:bold;
+}
+
+.step{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>⏰ Singapore Math - Khoảng Thời Gian</h1>
+
+<div class="clocks">
+
+<div class="card">
+<h2>Bắt đầu</h2>
+
+<canvas id="startClock" width="280" height="280"></canvas>
+
+<input id="startTime" type="time" value="20:30">
+
+<div id="startDisplay" class="time-display"></div>
+</div>
+
+<div class="card">
+<h2>Kết thúc</h2>
+
+<canvas id="endClock" width="280" height="280"></canvas>
+
+<input id="endTime" type="time" value="22:15">
+
+<div id="endDisplay" class="time-display"></div>
+</div>
+
+<div class="card">
+<h2>Mô phỏng</h2>
+
+<canvas id="simClock" width="280" height="280"></canvas>
+
+<input id="simTime" type="time" value="20:30">
+
+<div id="simDisplay" class="time-display"></div>
+
+<button id="simBtn" class="sim-btn" onclick="toggleSimulation()">▶ Chạy</button>
+</div>
+
+</div>
+
+<div class="controls">
+<button onclick="calculate()">Tính khoảng thời gian</button>
+</div>
+
+<div class="timeline-box">
+<h2>Timeline Singapore Math</h2>
+<div id="timeline" class="timeline"></div>
+</div>
+
+<div class="result">
+<div id="steps"></div>
+<div id="answer"></div>
+</div>
+
+</div>
+
+<script>
+
+class Clock{
+
+    constructor(canvasId,inputId,displayId,interactive=true){
+
+        this.canvas=document.getElementById(canvasId);
+        this.ctx=this.canvas.getContext("2d");
+
+        this.input=document.getElementById(inputId);
+        this.display=document.getElementById(displayId);
+
+        let [h,m]=this.input.value.split(":").map(Number);
+
+        this.totalMinutes=h*60+m;
+
+        this.dragging=false;
+
+        this.input.addEventListener("input",()=>{
+
+            let [h,m]=this.input.value.split(":").map(Number);
+
+            this.totalMinutes=h*60+m;
+
+            this.draw();
+        });
+
+        if(interactive){
+            this.canvas.addEventListener("mousedown",(e)=>this.startDrag(e));
+            this.canvas.addEventListener("mousemove",(e)=>this.drag(e));
+            window.addEventListener("mouseup",()=>this.stopDrag());
+        }
+
+        this.draw();
+    }
+
+    getMinuteFromEvent(event){
+
+        const rect=this.canvas.getBoundingClientRect();
+
+        const x=event.clientX-rect.left-140;
+        const y=event.clientY-rect.top-140;
+
+        let angle=Math.atan2(y,x)+Math.PI/2;
+
+        if(angle<0) angle+=Math.PI*2;
+
+        let minute=Math.round(angle/(Math.PI*2)*60);
+
+        if(minute===60) minute=0;
+
+        return minute;
+    }
+
+    startDrag(event){
+        this.dragging=true;
+    }
+
+    stopDrag(){
+        this.dragging=false;
+    }
+
+    drag(event){
+
+        if(!this.dragging) return;
+
+        const newMinute=this.getMinuteFromEvent(event);
+        const prevMinute=this.totalMinutes%60;
+
+        let delta=newMinute-prevMinute;
+
+        if(delta>30) delta-=60;
+        if(delta<-30) delta+=60;
+
+        this.totalMinutes+=delta;
+
+        this.totalMinutes=((this.totalMinutes%1440)+1440)%1440;
+
+        const h=Math.floor(this.totalMinutes/60);
+        const m=this.totalMinutes%60;
+
+        this.input.value=
+            String(h).padStart(2,"0")
+            +":"
+            +String(m).padStart(2,"0");
+
+        this.draw();
+    }
+
+    updateDisplay(){
+
+        const hour=Math.floor(this.totalMinutes/60);
+        const minute=Math.floor(this.totalMinutes%60);
+        const isAM=hour<12;
+        const h12=(hour%12)||12;
+        const tag=isAM?"am":"pm";
+        const label=isAM?"AM":"PM";
+
+        this.display.innerHTML=
+            String(h12).padStart(2,"0")
+            +":"
+            +String(minute).padStart(2,"0")
+            +` <span class="ampm-tag ${tag}">${label}</span>`;
+    }
+
+    draw(){
+
+        const ctx=this.ctx;
+
+        const hour=Math.floor(this.totalMinutes/60);
+        const minute=this.totalMinutes%60;
+        const isAM=hour<12;
+
+        ctx.clearRect(0,0,280,280);
+
+        ctx.save();
+        ctx.translate(140,140);
+
+        ctx.beginPath();
+        ctx.arc(0,0,120,0,Math.PI*2);
+        ctx.fillStyle=isAM?"#f0f4ff":"#fff8f0";
+        ctx.fill();
+        ctx.lineWidth=4;
+        ctx.strokeStyle=isAM?"#4f7cff":"#ff8c00";
+        ctx.stroke();
+
+        for(let i=1;i<=12;i++){
+
+            let angle=i*Math.PI/6-Math.PI/2;
+
+            ctx.font="20px Arial";
+            ctx.fillStyle="#333";
+
+            ctx.fillText(
+                i,
+                Math.cos(angle)*95-6,
+                Math.sin(angle)*95+6
+            );
+        }
+
+        const minuteAngle=
+            minute/60*Math.PI*2-Math.PI/2;
+
+        const hourAngle=
+            ((hour%12)+(minute/60))
+            *Math.PI/6-Math.PI/2;
+
+        drawHand(ctx,hourAngle,65,8,"#ff4d4d");
+        drawHand(ctx,minuteAngle,95,5,"#4f7cff");
+
+        ctx.beginPath();
+        ctx.arc(0,0,6,0,Math.PI*2);
+        ctx.fillStyle="#000";
+        ctx.fill();
+
+        ctx.fillStyle=isAM?"#ddeeff":"#ffe4cc";
+        drawRoundRect(ctx,-30,44,60,26,8);
+        ctx.fill();
+
+        ctx.fillStyle=isAM?"#2255cc":"#cc5500";
+        ctx.font="bold 15px Arial";
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.fillText(isAM?"AM":"PM",0,57);
+        ctx.textAlign="left";
+        ctx.textBaseline="alphabetic";
+
+        ctx.restore();
+
+        this.updateDisplay();
+    }
+}
+
+function drawRoundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+}
+
+function drawHand(ctx,angle,length,width,color){
+
+    ctx.beginPath();
+
+    ctx.lineWidth=width;
+    ctx.strokeStyle=color;
+
+    ctx.moveTo(0,0);
+
+    ctx.lineTo(
+        Math.cos(angle)*length,
+        Math.sin(angle)*length
+    );
+
+    ctx.stroke();
+}
+
+const startClock=
+    new Clock("startClock","startTime","startDisplay");
+
+const endClock=
+    new Clock("endClock","endTime","endDisplay");
+
+const simClock=
+    new Clock("simClock","simTime","simDisplay",false);
+
+let simRafId=null;
+let simStartTs=null;
+let simFromMin=0;
+let simTotalDiff=0;
+const SIM_SPEED=20; // clock-minutes per real second
+
+function toggleSimulation(){
+
+    const btn=document.getElementById("simBtn");
+
+    if(simRafId){
+        cancelAnimationFrame(simRafId);
+        simRafId=null;
+        btn.textContent="▶ Chạy";
+        btn.classList.remove("running");
+        return;
+    }
+
+    simFromMin=startClock.totalMinutes;
+    let diff=endClock.totalMinutes-simFromMin;
+    if(diff<=0) diff+=1440;
+    simTotalDiff=diff;
+    simStartTs=null;
+
+    simClock.totalMinutes=simFromMin;
+    simClock.draw();
+
+    btn.textContent="■ Dừng";
+    btn.classList.add("running");
+
+    function step(ts){
+
+        if(!simStartTs) simStartTs=ts;
+
+        const elapsed=(ts-simStartTs)/1000;
+        const clockMins=elapsed*SIM_SPEED;
+
+        const current=Math.min(clockMins,simTotalDiff);
+
+        simClock.totalMinutes=((simFromMin+current)%1440+1440)%1440;
+        simClock.draw();
+
+        if(clockMins>=simTotalDiff){
+            simRafId=null;
+            btn.textContent="▶ Chạy";
+            btn.classList.remove("running");
+            return;
+        }
+
+        simRafId=requestAnimationFrame(step);
+    }
+
+    simRafId=requestAnimationFrame(step);
+}
+
+function toMinutes(time){
+
+    let [h,m]=time.split(":").map(Number);
+
+    return h*60+m;
+}
+
+function calculate(){
+
+    let start=
+        document.getElementById("startTime").value;
+
+    let end=
+        document.getElementById("endTime").value;
+
+    let s=toMinutes(start);
+    let e=toMinutes(end);
+
+    let diff=e-s;
+
+    if(diff<0){
+        diff+=24*60;
+    }
+
+    let hours=Math.floor(diff/60);
+    let mins=diff%60;
+
+    document.getElementById("answer").innerHTML=
+        `<div class="big">${hours} giờ ${mins} phút</div>`;
+
+    buildSingaporeTimeline(start,end);
+}
+
+function buildSingaporeTimeline(start,end){
+
+    const timeline=
+        document.getElementById("timeline");
+
+    timeline.innerHTML="";
+
+    timeline.innerHTML+=`<div class="line"></div>`;
+
+    let [sh,sm]=start.split(":").map(Number);
+    let [eh,em]=end.split(":").map(Number);
+
+    let points=[];
+
+    points.push(start);
+
+    if(sm!==0){
+
+        let nextHour=sh+1;
+
+        points.push(
+            String(nextHour).padStart(2,"0")+":00"
+        );
+    }
+
+    for(let h=sh+1;h<eh;h++){
+
+        points.push(
+            String(h+1).padStart(2,"0")+":00"
+        );
+    }
+
+    points.push(end);
+
+    let count=points.length;
+
+    points.forEach((t,index)=>{
+
+        let left=
+            5+(index/(count-1))*90;
+
+        timeline.innerHTML+=`
+            <div class="point"
+                 style="left:${left}%">
+
+                <div class="dot"></div>
+
+                <div class="time">${t}</div>
+
+            </div>
+        `;
+    });
+
+    for(let i=0;i<count-1;i++){
+
+        let left1=
+            5+(i/(count-1))*90;
+
+        let left2=
+            5+((i+1)/(count-1))*90;
+
+        let d=
+            toMinutes(points[i+1])
+            -
+            toMinutes(points[i]);
+
+        timeline.innerHTML+=`
+            <div class="jump"
+                 style="left:${(left1+left2)/2}%">
+                +${d} phút
+            </div>
+        `;
+    }
+
+    let text="";
+
+    for(let i=0;i<count-1;i++){
+
+        let d=
+            toMinutes(points[i+1])
+            -
+            toMinutes(points[i]);
+
+        text+=`${d} phút`;
+
+        if(i<count-2){
+            text+=" + ";
+        }
+    }
+
+    document.getElementById("steps").innerHTML=
+        `<div class="step">${text}</div>`;
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
