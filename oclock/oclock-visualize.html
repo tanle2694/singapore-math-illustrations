@@ -1,649 +1,609 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Singapore Math - Time Difference</title>
-
+<title>Singapore Math – Elapsed Time</title>
 <style>
+*{box-sizing:border-box;}
+body{margin:0;padding:24px;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#e8f0fe 0%,#f0e8ff 100%);min-height:100vh;}
+h1{text-align:center;color:#1e3a8a;font-size:1.9rem;margin-bottom:24px;}
+.container{max-width:1100px;margin:auto;}
 
-*{
-    box-sizing:border-box;
-}
+/* clocks */
+.clocks{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.card{background:white;border-radius:20px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.1);text-align:center;flex:1 1 240px;max-width:300px;}
+.card h2{color:#374151;font-size:1.1rem;margin-bottom:12px;}
+canvas{display:block;margin:auto;}
+input[type=time]{display:none;}
+.time-display{margin-top:10px;font-size:26px;font-weight:bold;color:#1e3a8a;}
+.ampm-tag{display:inline-block;padding:2px 10px;border-radius:8px;font-size:17px;font-weight:bold;margin-left:6px;vertical-align:middle;}
+.ampm-tag.am{background:#dbeafe;color:#1d4ed8;}
+.ampm-tag.pm{background:#fed7aa;color:#c2410c;}
+.time-period-badge{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:4px 14px;border-radius:16px;font-size:15px;font-weight:bold;}
+.tp-night        {background:#1e1b4b;color:#c4b5fd;}
+.tp-early-morning{background:#ffe0cc;color:#b45309;}
+.tp-morning      {background:#fef9c3;color:#a16207;}
+.tp-noon         {background:#fef08a;color:#854d0e;}
+.tp-afternoon    {background:#ffedd5;color:#c2410c;}
+.tp-evening      {background:#fee2e2;color:#991b1b;}
 
-body{
-    margin:0;
-    padding:30px;
-    font-family:Arial,sans-serif;
-    background:#f2f7ff;
-}
+.sim-btn{display:block;margin:14px auto 0;padding:10px 30px;font-size:17px;font-weight:bold;border:none;border-radius:10px;background:#22c55e;color:white;cursor:pointer;transition:background .2s,transform .1s;}
+.sim-btn:hover:not(:disabled){background:#16a34a;transform:scale(1.03);}
+.sim-btn:disabled{background:#9ca3af;cursor:not-allowed;}
 
-h1{
-    text-align:center;
-    color:#2d4b8f;
-}
+.speed-ctrl{margin-top:14px;text-align:center;}
+.speed-ctrl label{font-size:13px;color:#6b7280;display:block;margin-bottom:6px;}
+.speed-row{display:flex;align-items:center;justify-content:center;gap:8px;}
+.speed-row span{font-size:13px;color:#9ca3af;}
+input[type=range].speed-slider{-webkit-appearance:none;appearance:none;width:110px;height:6px;border-radius:3px;background:#d1d5db;outline:none;cursor:pointer;}
+input[type=range].speed-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#4f7cff;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+input[type=range].speed-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#4f7cff;cursor:pointer;border:none;}
+.speed-label{font-size:13px;font-weight:bold;color:#4f7cff;min-width:42px;}
 
-.container{
-    max-width:1200px;
-    margin:auto;
-}
+.step-btns{display:flex;gap:8px;justify-content:center;margin-top:10px;}
+.step-btn{flex:1;padding:8px 0;font-size:15px;font-weight:bold;border:none;border-radius:8px;background:#4f7cff;color:white;cursor:pointer;transition:background .2s,transform .1s;}
+.step-btn:hover:not(:disabled){background:#3b5fe0;transform:scale(1.03);}
+.step-btn:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed;}
 
-.clocks{
-    display:flex;
-    gap:30px;
-    justify-content:center;
-    flex-wrap:wrap;
-}
+/* teaching bubble */
+.bubble-wrap{margin:0 auto 20px;max-width:700px;}
+.teaching-bubble{background:#fefce8;border:2px solid #fbbf24;border-radius:16px;padding:14px 22px;font-size:1.1rem;color:#78350f;text-align:center;}
+@keyframes bubbleIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
 
-.card{
-    background:white;
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-    text-align:center;
-}
+/* timeline */
+.timeline-box{background:white;border-radius:20px;padding:28px 30px 22px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.timeline-box h2{color:#1e3a8a;margin-bottom:20px;font-size:1.2rem;}
+.timeline{position:relative;height:130px;}
+.tl-base{position:absolute;top:48px;left:5%;right:5%;height:8px;background:#e5e7eb;border-radius:4px;}
+.tl-fill{position:absolute;top:48px;left:5%;height:8px;width:0;background:linear-gradient(90deg,#4f7cff,#a855f7);border-radius:4px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+.tl-marker{position:absolute;top:35px;width:34px;height:34px;border-radius:50%;background:#f59e0b;border:3px solid white;box-shadow:0 0 0 4px rgba(245,158,11,.35),0 0 16px rgba(245,158,11,.5);transform:translateX(-50%);transition:left .9s cubic-bezier(.4,0,.2,1);z-index:10;}
+.tl-point{position:absolute;top:35px;transform:translateX(-50%);text-align:center;z-index:5;}
+.tl-dot{width:28px;height:28px;border-radius:50%;background:#d1d5db;border:3px solid white;margin:auto;transition:background .5s,box-shadow .5s;}
+.tl-dot.active{background:#4f7cff;box-shadow:0 0 12px rgba(79,124,255,.6);}
+.tl-dot.done{background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.5);}
+.tl-time{margin-top:10px;font-size:12px;font-weight:bold;color:#374151;white-space:nowrap;}
+.tl-jump{position:absolute;top:72px;transform:translateX(-50%);background:#ff6600;color:white;font-size:12px;font-weight:bold;padding:3px 10px;border-radius:12px;opacity:0;white-space:nowrap;pointer-events:none;}
+.tl-jump.show{animation:jumpBounce .6s ease forwards;}
+@keyframes jumpBounce{0%{opacity:0;transform:translateX(-50%) scale(.4) translateY(12px);}60%{opacity:1;transform:translateX(-50%) scale(1.2) translateY(-6px);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
 
-canvas{
-    cursor:pointer;
-}
+/* calculation panel */
+.calc-box{background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.calc-box h2{color:#1e3a8a;margin-bottom:16px;font-size:1.2rem;}
+.calc-line{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:1.1rem;opacity:0;transform:translateX(-20px);transition:opacity .4s,transform .4s;}
+.calc-line.show{opacity:1;transform:translateX(0);}
+.calc-line .cl-plus{color:#4f7cff;font-size:1.4rem;font-weight:bold;min-width:28px;text-align:center;}
+.calc-line .cl-val{color:#1e3a8a;font-weight:bold;}
+.calc-line .cl-eq{color:#9ca3af;}
+.calc-line .cl-total{color:#7c3aed;font-weight:bold;}
+.calc-final{margin-top:20px;padding:16px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:14px;text-align:center;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s;}
+.calc-final.show{opacity:1;transform:translateY(0);}
+.calc-final .cf-mins{font-size:1.4rem;color:#065f46;}
+.calc-final .cf-eq{font-size:1.6rem;color:#6b7280;margin:4px 0;}
+.calc-final .cf-answer{font-size:2rem;font-weight:bold;color:#065f46;}
 
-input[type=time]{
-    display:none;
-}
+/* result */
+.result-box{background:white;border-radius:20px;padding:28px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.1);text-align:center;opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s;}
+.result-box.show{opacity:1;transform:translateY(0);}
+.congrats-msg{font-size:1.4rem;color:#065f46;font-weight:bold;margin-bottom:20px;}
+.result-grid{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;align-items:center;}
+.result-item{text-align:center;}
+.result-label{font-size:.9rem;color:#6b7280;margin-bottom:4px;}
+.result-value{font-size:1.6rem;font-weight:bold;color:#1e3a8a;}
+.result-arrow{font-size:2rem;color:#9ca3af;}
 
-.time-display{
-    margin-top:14px;
-    font-size:34px;
-    font-weight:bold;
-    color:#2d4b8f;
-    letter-spacing:1px;
-}
-
-.ampm-tag{
-    display:inline-block;
-    padding:3px 12px;
-    border-radius:10px;
-    font-size:22px;
-    font-weight:bold;
-    margin-left:8px;
-    vertical-align:middle;
-}
-
-.ampm-tag.am{
-    background:#ddeeff;
-    color:#2255cc;
-}
-
-.ampm-tag.pm{
-    background:#ffe4cc;
-    color:#cc5500;
-}
-
-.sim-btn{
-    margin-top:14px;
-    padding:10px 28px;
-    font-size:18px;
-    border:none;
-    border-radius:10px;
-    background:#22aa55;
-    color:white;
-    cursor:pointer;
-    display:block;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-.sim-btn.running{
-    background:#dd3333;
-}
-
-.controls{
-    text-align:center;
-    margin:25px;
-}
-
-button{
-    padding:12px 24px;
-    font-size:18px;
-    border:none;
-    border-radius:10px;
-    background:#4f7cff;
-    color:white;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:.9;
-}
-
-.timeline-box{
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    margin-top:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-}
-
-.timeline{
-    position:relative;
-    height:120px;
-}
-
-.line{
-    position:absolute;
-    top:50px;
-    left:5%;
-    width:90%;
-    height:6px;
-    background:#d9e4ff;
-    border-radius:10px;
-}
-
-.point{
-    position:absolute;
-    top:35px;
-    transform:translateX(-50%);
-}
-
-.dot{
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:#4f7cff;
-    margin:auto;
-}
-
-.time{
-    margin-top:8px;
-    font-weight:bold;
-}
-
-.jump{
-    position:absolute;
-    top:75px;
-    color:#ff6600;
-    font-weight:bold;
-    transform:translateX(-50%);
-}
-
-.result{
-    margin-top:25px;
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    text-align:center;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-}
-
-.big{
-    font-size:36px;
-    color:#2d4b8f;
-    font-weight:bold;
-}
-
-.step{
-    font-size:22px;
-    margin-bottom:10px;
-}
-
+/* confetti */
+#confettiCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;}
 </style>
 </head>
 <body>
+<canvas id="confettiCanvas"></canvas>
 
 <div class="container">
-
-<h1>⏰ Singapore Math - Khoảng Thời Gian</h1>
+<h1>⏰ Singapore Math – Elapsed Time</h1>
 
 <div class="clocks">
-
-<div class="card">
-<h2>Bắt đầu</h2>
-
-<canvas id="startClock" width="280" height="280"></canvas>
-
-<input id="startTime" type="time" value="20:30">
-
-<div id="startDisplay" class="time-display"></div>
+  <div class="card">
+    <h2>🕗 Start Time</h2>
+    <canvas id="startClock" width="240" height="240"></canvas>
+    <input id="startTime" type="time" value="20:30">
+    <div id="startDisplay" class="time-display"></div>
+  </div>
+  <div class="card">
+    <h2>⏱ Simulation</h2>
+    <canvas id="simClock" width="240" height="240"></canvas>
+    <input id="simTime" type="time" value="20:30">
+    <div id="simDisplay" class="time-display"></div>
+    <button id="simBtn" class="sim-btn" onclick="runSimulation()">▶ Run Simulation</button>
+    <div class="speed-ctrl">
+      <label>Speed</label>
+      <div class="speed-row">
+        <span>🐢</span>
+        <input type="range" id="speedSlider" class="speed-slider" min="1" max="3" value="2" step="1" oninput="updateSpeedLabel()">
+        <span>⚡</span>
+        <span class="speed-label" id="speedLabel">Normal</span>
+      </div>
+    </div>
+    <div class="step-btns">
+      <button id="prevBtn" class="step-btn" onclick="prevStep()" disabled>◀ Back</button>
+      <button id="nextBtn" class="step-btn" onclick="nextStep()" disabled>Next ▶</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🕙 End Time</h2>
+    <canvas id="endClock" width="240" height="240"></canvas>
+    <input id="endTime" type="time" value="22:15">
+    <div id="endDisplay" class="time-display"></div>
+  </div>
 </div>
 
-<div class="card">
-<h2>Kết thúc</h2>
-
-<canvas id="endClock" width="280" height="280"></canvas>
-
-<input id="endTime" type="time" value="22:15">
-
-<div id="endDisplay" class="time-display"></div>
-</div>
-
-<div class="card">
-<h2>Mô phỏng</h2>
-
-<canvas id="simClock" width="280" height="280"></canvas>
-
-<input id="simTime" type="time" value="20:30">
-
-<div id="simDisplay" class="time-display"></div>
-
-<button id="simBtn" class="sim-btn" onclick="toggleSimulation()">▶ Chạy</button>
-</div>
-
-</div>
-
-<div class="controls">
-<button onclick="calculate()">Tính khoảng thời gian</button>
+<div class="bubble-wrap">
+  <div id="teachingBubble" class="teaching-bubble">
+    Click <strong>Run Simulation</strong> to start the step-by-step journey!
+  </div>
 </div>
 
 <div class="timeline-box">
-<h2>Timeline Singapore Math</h2>
-<div id="timeline" class="timeline"></div>
+  <h2>📊 Singapore Math Timeline</h2>
+  <div id="timeline" class="timeline">
+    <div class="tl-base"></div>
+    <div class="tl-fill" id="tlFill"></div>
+    <div class="tl-marker" id="tlMarker" style="left:5%"></div>
+  </div>
 </div>
 
-<div class="result">
-<div id="steps"></div>
-<div id="answer"></div>
+<div class="calc-box">
+  <h2>🧮 Running Calculation</h2>
+  <div id="calcLines"></div>
+  <div id="calcFinal" class="calc-final"></div>
 </div>
 
+<div id="resultBox" class="result-box">
+  <div class="congrats-msg">🎉 Great Job! We counted the time step by step using Singapore Math!</div>
+  <div id="resultSummary" class="result-grid"></div>
+</div>
 </div>
 
 <script>
+// ── helpers ──────────────────────────────────────────────────────
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+function fmt12(totalMin){
+    const h = Math.floor(totalMin/60)%24, m = totalMin%60;
+    const h12 = (h%12)||12;
+    return `${h12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;
+}
+
+function getTimePeriod(totalMinutes){
+    const m = ((totalMinutes%1440)+1440)%1440;
+    if(m>=300&&m<540)  return{icon:"🌅",name:"Early Morning",cls:"tp-early-morning"};
+    if(m>=540&&m<720)  return{icon:"☀️", name:"Morning",      cls:"tp-morning"};
+    if(m>=720&&m<840)  return{icon:"🌞",name:"Noon",         cls:"tp-noon"};
+    if(m>=840&&m<1080) return{icon:"🌤️",name:"Afternoon",    cls:"tp-afternoon"};
+    if(m>=1080&&m<1200)return{icon:"🌇",name:"Evening",      cls:"tp-evening"};
+    return                   {icon:"🌙",name:"Night",        cls:"tp-night"};
+}
+
+// ── Clock ────────────────────────────────────────────────────────
+const CR = 120; // canvas center (240/2)
 
 class Clock{
-
     constructor(canvasId,inputId,displayId,interactive=true){
-
-        this.canvas=document.getElementById(canvasId);
-        this.ctx=this.canvas.getContext("2d");
-
-        this.input=document.getElementById(inputId);
-        this.display=document.getElementById(displayId);
-
-        let [h,m]=this.input.value.split(":").map(Number);
-
-        this.totalMinutes=h*60+m;
-
-        this.dragging=false;
-
-        this.input.addEventListener("input",()=>{
-
-            let [h,m]=this.input.value.split(":").map(Number);
-
-            this.totalMinutes=h*60+m;
-
-            this.draw();
+        this.canvas  = document.getElementById(canvasId);
+        this.ctx     = this.canvas.getContext('2d');
+        this.input   = document.getElementById(inputId);
+        this.display = document.getElementById(displayId);
+        let [h,m]    = this.input.value.split(':').map(Number);
+        this.totalMinutes = h*60+m;
+        this.dragging = false;
+        this.input.addEventListener('input',()=>{
+            let[h,m]=this.input.value.split(':').map(Number);
+            this.totalMinutes=h*60+m; this.draw();
         });
-
         if(interactive){
-            this.canvas.addEventListener("mousedown",(e)=>this.startDrag(e));
-            this.canvas.addEventListener("mousemove",(e)=>this.drag(e));
-            window.addEventListener("mouseup",()=>this.stopDrag());
+            this.canvas.addEventListener('mousedown',()=>this.dragging=true);
+            this.canvas.addEventListener('mousemove',e=>this.drag(e));
+            window.addEventListener('mouseup',()=>this.dragging=false);
         }
-
         this.draw();
     }
-
-    getMinuteFromEvent(event){
-
-        const rect=this.canvas.getBoundingClientRect();
-
-        const x=event.clientX-rect.left-140;
-        const y=event.clientY-rect.top-140;
-
-        let angle=Math.atan2(y,x)+Math.PI/2;
-
-        if(angle<0) angle+=Math.PI*2;
-
-        let minute=Math.round(angle/(Math.PI*2)*60);
-
-        if(minute===60) minute=0;
-
-        return minute;
+    getMinuteFromEvent(e){
+        const r=this.canvas.getBoundingClientRect();
+        const x=e.clientX-r.left-CR, y=e.clientY-r.top-CR;
+        let a=Math.atan2(y,x)+Math.PI/2;
+        if(a<0) a+=Math.PI*2;
+        let min=Math.round(a/(Math.PI*2)*60);
+        if(min===60) min=0;
+        return min;
     }
-
-    startDrag(event){
-        this.dragging=true;
-    }
-
-    stopDrag(){
-        this.dragging=false;
-    }
-
-    drag(event){
-
+    drag(e){
         if(!this.dragging) return;
-
-        const newMinute=this.getMinuteFromEvent(event);
-        const prevMinute=this.totalMinutes%60;
-
-        let delta=newMinute-prevMinute;
-
-        if(delta>30) delta-=60;
-        if(delta<-30) delta+=60;
-
-        this.totalMinutes+=delta;
-
-        this.totalMinutes=((this.totalMinutes%1440)+1440)%1440;
-
-        const h=Math.floor(this.totalMinutes/60);
-        const m=this.totalMinutes%60;
-
-        this.input.value=
-            String(h).padStart(2,"0")
-            +":"
-            +String(m).padStart(2,"0");
-
+        const nm=this.getMinuteFromEvent(e), pm=this.totalMinutes%60;
+        let d=nm-pm;
+        if(d>30) d-=60; if(d<-30) d+=60;
+        this.totalMinutes=((this.totalMinutes+d)%1440+1440)%1440;
+        const h=Math.floor(this.totalMinutes/60), m=this.totalMinutes%60;
+        this.input.value=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
         this.draw();
     }
-
     updateDisplay(){
-
-        const hour=Math.floor(this.totalMinutes/60);
-        const minute=Math.floor(this.totalMinutes%60);
-        const isAM=hour<12;
-        const h12=(hour%12)||12;
-        const tag=isAM?"am":"pm";
-        const label=isAM?"AM":"PM";
-
+        const hour=Math.floor(this.totalMinutes/60), min=Math.floor(this.totalMinutes%60);
+        const isAM=hour<12, h12=(hour%12)||12, p=getTimePeriod(this.totalMinutes);
         this.display.innerHTML=
-            String(h12).padStart(2,"0")
-            +":"
-            +String(minute).padStart(2,"0")
-            +` <span class="ampm-tag ${tag}">${label}</span>`;
+            String(h12).padStart(2,'0')+':'+String(min).padStart(2,'0')+
+            `<span class="ampm-tag ${isAM?'am':'pm'}">${isAM?'AM':'PM'}</span>`+
+            `<br><span class="time-period-badge ${p.cls}">${p.icon} ${p.name}</span>`;
     }
-
     draw(){
-
-        const ctx=this.ctx;
-
-        const hour=Math.floor(this.totalMinutes/60);
-        const minute=this.totalMinutes%60;
-        const isAM=hour<12;
-
-        ctx.clearRect(0,0,280,280);
-
-        ctx.save();
-        ctx.translate(140,140);
-
-        ctx.beginPath();
-        ctx.arc(0,0,120,0,Math.PI*2);
-        ctx.fillStyle=isAM?"#f0f4ff":"#fff8f0";
-        ctx.fill();
-        ctx.lineWidth=4;
-        ctx.strokeStyle=isAM?"#4f7cff":"#ff8c00";
-        ctx.stroke();
-
-        for(let i=1;i<=12;i++){
-
-            let angle=i*Math.PI/6-Math.PI/2;
-
-            ctx.font="20px Arial";
-            ctx.fillStyle="#333";
-
-            ctx.fillText(
-                i,
-                Math.cos(angle)*95-6,
-                Math.sin(angle)*95+6
-            );
+        const ctx=this.ctx, R=100;
+        const hour=Math.floor(this.totalMinutes/60), min=this.totalMinutes%60, isAM=hour<12;
+        ctx.clearRect(0,0,240,240);
+        ctx.save(); ctx.translate(CR,CR);
+        // face
+        ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2);
+        ctx.fillStyle=isAM?'#f0f4ff':'#fff8f0'; ctx.fill();
+        ctx.lineWidth=4; ctx.strokeStyle=isAM?'#4f7cff':'#ff8c00'; ctx.stroke();
+        // ticks
+        for(let i=0;i<60;i++){
+            const a=i/60*Math.PI*2-Math.PI/2, f=i%5===0;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a)*(R-2),Math.sin(a)*(R-2));
+            ctx.lineTo(Math.cos(a)*(f?R-12:R-6),Math.sin(a)*(f?R-12:R-6));
+            ctx.lineWidth=f?3:1.5; ctx.strokeStyle=f?'#555':'#aaa'; ctx.stroke();
         }
-
-        const minuteAngle=
-            minute/60*Math.PI*2-Math.PI/2;
-
-        const hourAngle=
-            ((hour%12)+(minute/60))
-            *Math.PI/6-Math.PI/2;
-
-        drawHand(ctx,hourAngle,65,8,"#ff4d4d");
-        drawHand(ctx,minuteAngle,95,5,"#4f7cff");
-
-        ctx.beginPath();
-        ctx.arc(0,0,6,0,Math.PI*2);
-        ctx.fillStyle="#000";
-        ctx.fill();
-
-        ctx.fillStyle=isAM?"#ddeeff":"#ffe4cc";
-        drawRoundRect(ctx,-30,44,60,26,8);
-        ctx.fill();
-
-        ctx.fillStyle=isAM?"#2255cc":"#cc5500";
-        ctx.font="bold 15px Arial";
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
-        ctx.fillText(isAM?"AM":"PM",0,57);
-        ctx.textAlign="left";
-        ctx.textBaseline="alphabetic";
-
+        // numbers
+        for(let i=1;i<=12;i++){
+            const a=i*Math.PI/6-Math.PI/2;
+            ctx.font='bold 15px Arial'; ctx.fillStyle='#333';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText(i,Math.cos(a)*70,Math.sin(a)*70);
+        }
+        ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+        // hands
+        const ma=min/60*Math.PI*2-Math.PI/2;
+        const ha=((hour%12)+min/60)*Math.PI/6-Math.PI/2;
+        drawHand(ctx,ha,56,7,'#ff4d4d');
+        drawHand(ctx,ma,82,5,'#4f7cff');
+        // center dot
+        ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill();
+        // AM/PM badge
+        ctx.fillStyle=isAM?'#ddeeff':'#ffe4cc';
+        drawRoundRect(ctx,-24,38,48,22,7); ctx.fill();
+        ctx.fillStyle=isAM?'#2255cc':'#cc5500';
+        ctx.font='bold 13px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(isAM?'AM':'PM',0,49);
+        ctx.textAlign='left'; ctx.textBaseline='alphabetic';
         ctx.restore();
-
         this.updateDisplay();
     }
 }
 
 function drawRoundRect(ctx,x,y,w,h,r){
     ctx.beginPath();
-    ctx.moveTo(x+r,y);
-    ctx.lineTo(x+w-r,y);
-    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r);
-    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    ctx.lineTo(x+r,y+h);
-    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-    ctx.lineTo(x,y+r);
-    ctx.quadraticCurveTo(x,y,x+r,y);
-    ctx.closePath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
 function drawHand(ctx,angle,length,width,color){
-
-    ctx.beginPath();
-
-    ctx.lineWidth=width;
-    ctx.strokeStyle=color;
-
-    ctx.moveTo(0,0);
-
-    ctx.lineTo(
-        Math.cos(angle)*length,
-        Math.sin(angle)*length
-    );
-
-    ctx.stroke();
+    ctx.beginPath(); ctx.lineWidth=width; ctx.strokeStyle=color; ctx.lineCap='round';
+    ctx.moveTo(0,0); ctx.lineTo(Math.cos(angle)*length,Math.sin(angle)*length); ctx.stroke();
 }
 
-const startClock=
-    new Clock("startClock","startTime","startDisplay");
+// ── Instances ────────────────────────────────────────────────────
+const startClock = new Clock('startClock','startTime','startDisplay');
+const endClock   = new Clock('endClock',  'endTime',  'endDisplay');
+const simClock   = new Clock('simClock',  'simTime',  'simDisplay', false);
 
-const endClock=
-    new Clock("endClock","endTime","endDisplay");
+// ── Step calculation ─────────────────────────────────────────────
+function calculateSteps(startMin, endMin){
+    let diff = endMin - startMin;
+    if(diff <= 0) diff += 1440;
+    if(diff === 0) return [];
 
-const simClock=
-    new Clock("simClock","simTime","simDisplay",false);
+    const sh = Math.floor(startMin/60), sm = startMin%60;
+    const endTotal = (startMin+diff)%1440;
+    const eh = Math.floor(endTotal/60);
 
-let simRafId=null;
-let simStartTs=null;
-let simFromMin=0;
-let simTotalDiff=0;
-const SIM_SPEED=20; // clock-minutes per real second
+    const pts = [startMin];
+    const nextHour = ((sh+1)*60)%1440;
+    const distToNextHour = (nextHour - startMin + 1440) % 1440;
+    if(sm !== 0 && distToNextHour < diff) pts.push(nextHour);
 
-function toggleSimulation(){
-
-    const btn=document.getElementById("simBtn");
-
-    if(simRafId){
-        cancelAnimationFrame(simRafId);
-        simRafId=null;
-        btn.textContent="▶ Chạy";
-        btn.classList.remove("running");
-        return;
+    const loopStart = sm !== 0 ? sh+1 : sh;
+    for(let h=loopStart; h<eh; h++){
+        const np = ((h+1)*60)%1440;
+        if(pts[pts.length-1] !== np) pts.push(np);
     }
+    if(pts[pts.length-1] !== endTotal) pts.push(endTotal);
 
-    simFromMin=startClock.totalMinutes;
-    let diff=endClock.totalMinutes-simFromMin;
-    if(diff<=0) diff+=1440;
-    simTotalDiff=diff;
-    simStartTs=null;
+    return pts.slice(0,-1).map((p,i)=>{
+        let d = (pts[i+1]-p+1440)%1440;
+        if(d===0) d=1440;
+        return {fromMin:p, toMin:pts[i+1], delta:d};
+    });
+}
 
-    simClock.totalMinutes=simFromMin;
-    simClock.draw();
-
-    btn.textContent="■ Dừng";
-    btn.classList.add("running");
-
-    function step(ts){
-
-        if(!simStartTs) simStartTs=ts;
-
-        const elapsed=(ts-simStartTs)/1000;
-        const clockMins=elapsed*SIM_SPEED;
-
-        const current=Math.min(clockMins,simTotalDiff);
-
-        simClock.totalMinutes=((simFromMin+current)%1440+1440)%1440;
-        simClock.draw();
-
-        if(clockMins>=simTotalDiff){
-            simRafId=null;
-            btn.textContent="▶ Chạy";
-            btn.classList.remove("running");
-            return;
+function teachingMsg(i, total, step){
+    const to = fmt12(step.toMin);
+    if(i===0 && total>1){
+        if(step.delta%60===0){
+            const hrs=step.delta/60;
+            return `Add ${hrs} hour${hrs>1?'s':''} to reach ${to}.`;
         }
-
-        simRafId=requestAnimationFrame(step);
+        return `Add ${step.delta} minutes to reach the next full hour: ${to}.`;
     }
-
-    simRafId=requestAnimationFrame(step);
+    if(i===total-1 && i>0) return `Add ${step.delta} more minutes to reach ${to}.`;
+    if(step.delta===60) return `Add 1 hour to reach ${to}.`;
+    if(step.delta%60===0) return `Add ${step.delta/60} hours to reach ${to}.`;
+    return `Add ${step.delta} minutes to reach ${to}.`;
 }
 
-function toMinutes(time){
 
-    let [h,m]=time.split(":").map(Number);
+// ── Timeline DOM ─────────────────────────────────────────────────
+function buildTimeline(steps){
+    const tl = document.getElementById('timeline');
+    tl.querySelectorAll('.tl-point,.tl-jump').forEach(e=>e.remove());
 
-    return h*60+m;
-}
+    const pts = steps.map(s=>s.fromMin).concat(steps[steps.length-1].toMin);
+    const n   = pts.length;
+    const pos = i => 5+(i/(n-1))*90; // % left
 
-function calculate(){
-
-    let start=
-        document.getElementById("startTime").value;
-
-    let end=
-        document.getElementById("endTime").value;
-
-    let s=toMinutes(start);
-    let e=toMinutes(end);
-
-    let diff=e-s;
-
-    if(diff<0){
-        diff+=24*60;
-    }
-
-    let hours=Math.floor(diff/60);
-    let mins=diff%60;
-
-    document.getElementById("answer").innerHTML=
-        `<div class="big">${hours} giờ ${mins} phút</div>`;
-
-    buildSingaporeTimeline(start,end);
-}
-
-function buildSingaporeTimeline(start,end){
-
-    const timeline=
-        document.getElementById("timeline");
-
-    timeline.innerHTML="";
-
-    timeline.innerHTML+=`<div class="line"></div>`;
-
-    let [sh,sm]=start.split(":").map(Number);
-    let [eh,em]=end.split(":").map(Number);
-
-    let points=[];
-
-    points.push(start);
-
-    if(sm!==0){
-
-        let nextHour=sh+1;
-
-        points.push(
-            String(nextHour).padStart(2,"0")+":00"
-        );
-    }
-
-    for(let h=sh+1;h<eh;h++){
-
-        points.push(
-            String(h+1).padStart(2,"0")+":00"
-        );
-    }
-
-    points.push(end);
-
-    let count=points.length;
-
-    points.forEach((t,index)=>{
-
-        let left=
-            5+(index/(count-1))*90;
-
-        timeline.innerHTML+=`
-            <div class="point"
-                 style="left:${left}%">
-
-                <div class="dot"></div>
-
-                <div class="time">${t}</div>
-
-            </div>
-        `;
+    pts.forEach((min,i)=>{
+        const div=document.createElement('div');
+        div.className='tl-point'; div.id=`tlPt${i}`; div.style.left=pos(i)+'%';
+        div.innerHTML=`<div class="tl-dot" id="tlDot${i}"></div><div class="tl-time">${fmt12(min)}</div>`;
+        tl.appendChild(div);
     });
 
-    for(let i=0;i<count-1;i++){
+    steps.forEach((step,i)=>{
+        const mid=(pos(i)+pos(i+1))/2;
+        const lbl=document.createElement('div');
+        lbl.className='tl-jump'; lbl.id=`tlJump${i}`; lbl.style.left=mid+'%';
+        lbl.textContent=`+${step.delta} min`;
+        tl.appendChild(lbl);
+    });
 
-        let left1=
-            5+(i/(count-1))*90;
+    // reset fill & marker without transition
+    const fill=document.getElementById('tlFill'), marker=document.getElementById('tlMarker');
+    fill.style.transition='none'; fill.style.width='0%';
+    marker.style.transition='none'; marker.style.left=pos(0)+'%';
+    document.getElementById('tlDot0').className='tl-dot active';
+    void fill.offsetWidth; // reflow
+    fill.style.transition=''; marker.style.transition='';
 
-        let left2=
-            5+((i+1)/(count-1))*90;
+    return pos;
+}
 
-        let d=
-            toMinutes(points[i+1])
-            -
-            toMinutes(points[i]);
+// ── Bubble ───────────────────────────────────────────────────────
+function showBubble(text){
+    const el=document.getElementById('teachingBubble');
+    el.style.animation='none';
+    el.innerHTML=text;
+    void el.offsetWidth;
+    el.style.animation='bubbleIn .4s ease';
+}
 
-        timeline.innerHTML+=`
-            <div class="jump"
-                 style="left:${(left1+left2)/2}%">
-                +${d} phút
-            </div>
-        `;
+
+// ── Confetti ─────────────────────────────────────────────────────
+function launchConfetti(){
+    const canvas=document.getElementById('confettiCanvas');
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff','#ff9f43'];
+    const parts=Array.from({length:180},(_,i)=>({
+        x:Math.random()*canvas.width, y:-10-Math.random()*200,
+        vx:(Math.random()-.5)*5, vy:Math.random()*3+2,
+        color:colors[i%colors.length], size:Math.random()*9+4,
+        rot:Math.random()*Math.PI*2, rotV:(Math.random()-.5)*.15,
+        rect:Math.random()<.5
+    }));
+    function tick(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        let alive=false;
+        for(const p of parts){
+            p.x+=p.vx; p.y+=p.vy; p.vy+=.04; p.rot+=p.rotV;
+            if(p.y<canvas.height+30) alive=true;
+            const fade=p.y>canvas.height-60?Math.max(0,1-(p.y-(canvas.height-60))/60):1;
+            ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+            ctx.fillStyle=p.color; ctx.globalAlpha=fade;
+            if(p.rect){ ctx.fillRect(-p.size/2,-p.size/3,p.size,p.size*.6); }
+            else{ ctx.beginPath(); ctx.arc(0,0,p.size/2,0,Math.PI*2); ctx.fill(); }
+            ctx.restore();
+        }
+        if(alive) requestAnimationFrame(tick);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    requestAnimationFrame(tick);
+}
+
+// ── Speed ────────────────────────────────────────────────────────
+const SPEEDS = {
+    1:{label:'Slow',  clockMs:2000, gapMs:800,  teachMs:3500},
+    2:{label:'Normal',clockMs:1200, gapMs:500,  teachMs:2000},
+    3:{label:'Fast',  clockMs:500,  gapMs:200,  teachMs:800},
+};
+function getSpd(){ return SPEEDS[document.getElementById('speedSlider').value]; }
+function updateSpeedLabel(){ document.getElementById('speedLabel').textContent=getSpd().label; }
+
+// ── Simulation state ─────────────────────────────────────────────
+const sim = {
+    steps:[], startMin:0, endMin:0, total:0,
+    completed:0,  // how many steps have been revealed (0 = at start)
+    pos:null,
+    busy:false,       // true during a single step animation
+    autoRunning:false,// true during full auto-run
+    initialized:false,
+    confettiFired:false,
+};
+
+function updateBtns(){
+    const n=sim.steps.length, any=sim.busy||sim.autoRunning;
+    document.getElementById('simBtn').disabled=sim.autoRunning;
+    document.getElementById('prevBtn').disabled=any||sim.completed<=0;
+    document.getElementById('nextBtn').disabled=any||sim.completed>=n;
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+function initSim(){
+    sim.startMin=startClock.totalMinutes; sim.endMin=endClock.totalMinutes;
+    sim.steps=calculateSteps(sim.startMin, sim.endMin);
+    sim.total=sim.steps.reduce((s,x)=>s+x.delta, 0);
+    sim.completed=0; sim.initialized=true; sim.confettiFired=false;
+
+    buildCalcPanel(sim.steps);
+    document.getElementById('calcFinal').classList.remove('show');
+    document.getElementById('resultBox').classList.remove('show');
+
+    sim.pos=buildTimeline(sim.steps);
+    simClock.totalMinutes=sim.startMin; simClock.draw();
+    showBubble("💡 Let's count the time step by step!");
+    updateBtns();
+}
+
+function buildCalcPanel(steps){
+    const c=document.getElementById('calcLines');
+    c.innerHTML='';
+    let run=0;
+    steps.forEach((step,i)=>{
+        run+=step.delta;
+        const d=document.createElement('div');
+        d.className='calc-line'; d.id=`calcLine${i}`;
+        d.innerHTML=`<span class="cl-plus">+</span><span class="cl-val">${step.delta} min</span><span class="cl-eq">=</span><span class="cl-total">${run} min total</span>`;
+        c.appendChild(d);
+    });
+}
+
+// ── Apply state ──────────────────────────────────────────────────
+function animateClockTo(targetMin, duration, reverse=false){
+    return new Promise(resolve=>{
+        const from=simClock.totalMinutes;
+        let diff=(targetMin-from+1440)%1440;
+        if(reverse && diff>720) diff-=1440; // go backward
+        if(diff===0){ resolve(); return; }
+        const t0=performance.now();
+        function frame(ts){
+            const p=Math.min((ts-t0)/duration,1);
+            const ep=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+            simClock.totalMinutes=((from+diff*ep)%1440+1440)%1440;
+            simClock.draw();
+            if(p<1) requestAnimationFrame(frame);
+            else{ simClock.totalMinutes=((targetMin%1440)+1440)%1440; simClock.draw(); resolve(); }
+        }
+        requestAnimationFrame(frame);
+    });
+}
+
+async function applyStep(target, reverse=false){
+    sim.busy=true; updateBtns();
+    const {steps,startMin,endMin,total,pos}=sim;
+    const n=steps.length;
+    const spd=getSpd();
+    const dur=reverse?Math.min(spd.clockMs,500):spd.clockMs;
+
+    // clock
+    const clockTarget=target===0?startMin:steps[target-1].toMin;
+    await animateClockTo(clockTarget, dur, reverse);
+
+    // timeline fill + marker
+    const fill=document.getElementById('tlFill'), marker=document.getElementById('tlMarker');
+    const tDur=dur+'ms';
+    fill.style.transition=`width ${tDur} cubic-bezier(.4,0,.2,1)`;
+    marker.style.transition=`left ${tDur} cubic-bezier(.4,0,.2,1)`;
+    fill.style.width=target===0?'0%':(pos(target)-5)+'%';
+    marker.style.left=pos(target)+'%';
+
+    // dots
+    for(let i=0;i<=n;i++){
+        const d=document.getElementById(`tlDot${i}`);
+        if(d) d.className='tl-dot'+(i<target?' done':i===target?' active':'');
     }
 
-    let text="";
-
-    for(let i=0;i<count-1;i++){
-
-        let d=
-            toMinutes(points[i+1])
-            -
-            toMinutes(points[i]);
-
-        text+=`${d} phút`;
-
-        if(i<count-2){
-            text+=" + ";
+    // jump labels – trigger bounce only on newly shown label
+    for(let i=0;i<n;i++){
+        const lbl=document.getElementById(`tlJump${i}`);
+        if(!lbl) continue;
+        if(i<target){
+            if(!lbl.classList.contains('show')){
+                lbl.classList.remove('show'); void lbl.offsetWidth;
+                lbl.classList.add('show');
+            }
+        } else {
+            lbl.classList.remove('show');
         }
     }
 
-    document.getElementById("steps").innerHTML=
-        `<div class="step">${text}</div>`;
+    // calc lines
+    for(let i=0;i<n;i++){
+        const line=document.getElementById(`calcLine${i}`);
+        if(!line) continue;
+        if(i<target) line.classList.add('show');
+        else line.classList.remove('show');
+    }
+
+    // final calc + result
+    const cf=document.getElementById('calcFinal');
+    if(target===n){
+        const hrs=Math.floor(total/60), mins=total%60;
+        const hrStr=hrs>0?hrs+' hour'+(hrs>1?'s':''):'';
+        const minStr=mins>0?mins+' minute'+(mins>1?'s':''):'';
+        cf.innerHTML=`<div class="cf-mins">${total} minutes</div><div class="cf-eq">=</div><div class="cf-answer">${[hrStr,minStr].filter(Boolean).join(' ')}</div>`;
+        await sleep(150); cf.classList.add('show');
+        showResult(endMin, hrs, mins);
+        if(!sim.confettiFired){ launchConfetti(); sim.confettiFired=true; }
+        showBubble('🎉 Great Job! We counted the time step by step using Singapore Math!');
+    } else {
+        cf.classList.remove('show');
+        document.getElementById('resultBox').classList.remove('show');
+        if(target===0) showBubble("💡 Let's count the time step by step!");
+        else showBubble('💡 '+teachingMsg(target-1, n, steps[target-1]));
+    }
+
+    sim.completed=target;
+    sim.busy=false; updateBtns();
 }
 
-calculate();
+function showResult(endMin, hrs, mins){
+    const box=document.getElementById('resultBox');
+    document.getElementById('resultSummary').innerHTML=`
+        <div class="result-item"><div class="result-label">Start Time</div><div class="result-value">${fmt12(sim.startMin)}</div></div>
+        <div class="result-arrow">→</div>
+        <div class="result-item"><div class="result-label">End Time</div><div class="result-value">${fmt12(endMin)}</div></div>
+        <div class="result-arrow">=</div>
+        <div class="result-item"><div class="result-label">Elapsed Time</div><div class="result-value">${hrs>0?hrs+'h ':''} ${mins>0?mins+'m':''}</div></div>`;
+    void box.offsetWidth; box.classList.add('show');
+}
 
+// ── Controls ─────────────────────────────────────────────────────
+async function runSimulation(){
+    if(sim.autoRunning) return;
+    initSim();
+    if(!sim.steps.length){ showBubble('Start and end times are the same!'); return; }
+    sim.autoRunning=true; updateBtns();
+    await sleep(600);
+    const spd=getSpd();
+    for(let i=sim.completed+1; i<=sim.steps.length; i++){
+        await applyStep(i, false);
+        if(i<sim.steps.length) await sleep(spd.teachMs);
+    }
+    sim.autoRunning=false; updateBtns();
+}
+
+async function nextStep(){
+    if(sim.busy||sim.autoRunning) return;
+    if(!sim.initialized){ initSim(); if(!sim.steps.length){ showBubble('Start and end times are the same!'); return; } }
+    if(sim.completed>=sim.steps.length) return;
+    await applyStep(sim.completed+1, false);
+}
+
+async function prevStep(){
+    if(sim.busy||sim.autoRunning||sim.completed<=0) return;
+    await applyStep(sim.completed-1, true);
+}
+
+// init on load so Next is immediately usable
+initSim();
 </script>
-
 </body>
 </html>
