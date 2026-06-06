@@ -1,87 +1,123 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Bài toán tuổi bố và con</title>
+<title>Bài Toán Tuổi Bố Và Con</title>
 
 <style>
 
+:root{
+    --father:#3b82f6;
+    --father-dark:#2563eb;
+
+    --child:#f59e0b;
+    --child-dark:#ea580c;
+
+    --diff:#ef4444;
+    --diff-dark:#dc2626;
+
+    --bg:#f5f7fb;
+    --card:#ffffff;
+
+    --shadow:
+        0 10px 30px rgba(0,0,0,.08);
+}
+
+*{
+    box-sizing:border-box;
+}
+
 body{
-    font-family:Arial,sans-serif;
-    background:#eef9ff;
-    padding:20px;
+    margin:0;
+    padding:30px;
+    background:var(--bg);
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
 }
 
 .container{
-    max-width:1000px;
+    max-width:1200px;
     margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:16px;
-    box-shadow:0 0 15px rgba(0,0,0,.1);
 }
 
-h1{
+/* =========================
+   HEADER
+========================= */
+
+.hero{
     text-align:center;
-    color:#2563eb;
+    margin-bottom:30px;
 }
 
-.input-panel{
-    display:flex;
+.hero h1{
+    margin:0;
+    font-size:48px;
+    color:#1e40af;
+}
+
+.hero p{
+    margin-top:10px;
+    color:#64748b;
+    font-size:20px;
+}
+
+/* =========================
+   CONTROL CARD
+========================= */
+
+.control-card{
+    background:white;
+    border-radius:24px;
+    padding:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:30px;
+}
+
+.inputs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
     gap:20px;
-    flex-wrap:wrap;
-    margin-bottom:20px;
+    margin-bottom:25px;
 }
 
-.input-group{
-    display:flex;
-    flex-direction:column;
+.field label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:700;
 }
 
-.input-group label{
-    font-weight:bold;
-    margin-bottom:5px;
+.field input{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:2px solid #e2e8f0;
+    font-size:20px;
 }
 
-.input-group input{
-    width:120px;
-    padding:8px;
-    font-size:18px;
-}
-
-.timeline{
-    margin:20px 0;
-}
-
-#timeText{
+#timeLabel{
     text-align:center;
     font-size:24px;
-    font-weight:bold;
+    font-weight:700;
     margin-bottom:15px;
 }
 
-.slider-container{
+.slider-row{
     display:flex;
     align-items:center;
-    gap:12px;
-}
-
-#slider{
-    flex:1;
+    gap:15px;
 }
 
 .step-btn{
-    width:50px;
-    height:50px;
+    width:52px;
+    height:52px;
     border:none;
-    border-radius:10px;
+    border-radius:14px;
     background:#2563eb;
     color:white;
     font-size:30px;
-    font-weight:bold;
     cursor:pointer;
 }
 
@@ -89,88 +125,216 @@ h1{
     opacity:.9;
 }
 
-.row{
-    margin:40px 0;
+#yearSlider{
+    flex:1;
 }
 
-.label{
-    font-size:26px;
-    font-weight:bold;
-    margin-bottom:12px;
+/* =========================
+   AGE CARD
+========================= */
+
+.age-card{
+    background:white;
+    border-radius:24px;
+    padding:25px;
+    box-shadow:var(--shadow);
+    margin-bottom:25px;
 }
 
-.bar-wrapper{
-    position:relative;
-}
-
-.bar{
+.person-title{
     display:flex;
-    height:70px;
-    overflow:hidden;
-    border-radius:12px;
+    align-items:center;
+    gap:15px;
+    margin-bottom:20px;
 }
 
-.segment{
+.avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:32px;
+    background:#f1f5f9;
+}
+
+.person-title h2{
+    margin:0;
+    font-size:30px;
+}
+
+/* =========================
+   BAR MODEL
+========================= */
+
+.bar-model{
+    display:flex;
+    min-height:80px;
+    align-items:stretch;
+}
+
+.equal-bar{
+    background:
+        linear-gradient(
+            135deg,
+            var(--father),
+            var(--father-dark)
+        );
+
+    border-radius:16px 0 0 16px;
+
+    transition:.4s;
+}
+
+.diff-bar{
+    background:
+        linear-gradient(
+            135deg,
+            var(--diff),
+            var(--diff-dark)
+        );
+
+    color:white;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    color:white;
-    font-size:20px;
-    font-weight:bold;
-    transition:all .4s ease;
+
+    font-size:22px;
+    font-weight:700;
+
+    border-radius:0 16px 16px 0;
+
+    transition:.4s;
 }
 
-.same{
-    background:#60a5fa;
+.child-bar{
+    background:
+        linear-gradient(
+            135deg,
+            var(--child),
+            var(--child-dark)
+        );
+
+    border-radius:16px;
+
+    transition:.4s;
 }
 
-.extra{
-    background:#ef4444;
+/* =========================
+   BRACKETS
+========================= */
+
+.brackets{
+    display:flex;
+    margin-top:18px;
 }
 
-.child{
-    background:#f59e0b;
-}
-
-.marker{
-    position:absolute;
-    top:-10px;
-    width:0;
-    height:90px;
-    border-left:4px dashed #111827;
-    z-index:10;
-}
-
-.marker-label{
-    position:absolute;
-    top:-35px;
-    left:-35px;
-    width:70px;
+.bracket{
     text-align:center;
-    font-size:13px;
-    font-weight:bold;
+    font-weight:700;
+    position:relative;
+    padding-top:20px;
 }
 
-.formula{
-    margin-top:30px;
+.bracket::before{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    border-top:3px solid currentColor;
+}
+
+.bracket.blue{
+    color:var(--father);
+}
+
+.bracket.red{
+    color:var(--diff);
+}
+
+.bracket.orange{
+    color:var(--child);
+}
+
+/* =========================
+   EQUATION
+========================= */
+
+.equation-card{
+    background:#fff7ed;
+    border:2px solid #fdba74;
+    border-radius:24px;
+    padding:25px;
     text-align:center;
-    font-size:30px;
-    font-weight:bold;
-    color:#dc2626;
+    margin-bottom:25px;
 }
 
-.note{
-    margin-top:25px;
-    padding:20px;
-    background:#ecfeff;
-    border-radius:12px;
-    font-size:20px;
-    line-height:1.8;
+.equation{
+    font-size:54px;
+    font-weight:900;
 }
 
-.highlight{
-    color:#dc2626;
-    font-weight:bold;
+.eq-father{
+    color:var(--father);
+}
+
+.eq-child{
+    color:var(--child);
+}
+
+.eq-diff{
+    color:var(--diff);
+}
+
+.equation-desc{
+    margin-top:15px;
+    font-size:22px;
+    font-weight:700;
+}
+
+/* =========================
+   KNOWLEDGE
+========================= */
+
+.knowledge-card{
+    background:white;
+    border-radius:24px;
+    padding:25px;
+    box-shadow:var(--shadow);
+}
+
+.knowledge-card h3{
+    margin-top:0;
+}
+
+.tip{
+    background:#ecfdf5;
+    border-left:6px solid #22c55e;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+    .inputs{
+        grid-template-columns:1fr;
+    }
+
+    .hero h1{
+        font-size:34px;
+    }
+
+    .equation{
+        font-size:34px;
+    }
 }
 
 </style>
@@ -180,180 +344,266 @@ h1{
 
 <div class="container">
 
-<h1>👨🧒 Bài Toán Tuổi Bố Và Con</h1>
-
-<div class="input-panel">
-
-    <div class="input-group">
-        <label>Tuổi bố hiện tại</label>
-        <input
-            id="fatherInput"
-            type="number"
-            min="1"
-            value="40">
+    <div class="hero">
+        <h1>👨‍👦 Bài Toán Tuổi Bố Và Con</h1>
+        <p>Khám phá sự thay đổi tuổi theo thời gian</p>
     </div>
 
-    <div class="input-group">
-        <label>Tuổi con hiện tại</label>
-        <input
-            id="childInput"
-            type="number"
-            min="0"
-            value="10">
-    </div>
+    <div class="control-card">
 
-</div>
+        <div class="inputs">
 
-<div class="timeline">
-
-    <div id="timeText">
-        📍 Hiện tại
-    </div>
-
-    <div class="slider-container">
-
-        <button
-            id="minusBtn"
-            class="step-btn">
-            −
-        </button>
-
-        <input
-            type="range"
-            id="slider"
-            min="-20"
-            max="30"
-            value="0">
-
-        <button
-            id="plusBtn"
-            class="step-btn">
-            +
-        </button>
-
-    </div>
-
-</div>
-
-<!-- BỐ -->
-
-<div class="row">
-
-    <div
-        id="fatherLabel"
-        class="label">
-        👨 Bố (40 tuổi)
-    </div>
-
-    <div class="bar-wrapper">
-
-        <div class="bar">
-
-            <div
-                id="fatherSame"
-                class="segment same">
+            <div class="field">
+                <label>👨 Tuổi bố hiện tại</label>
+                <input
+                    id="fatherInput"
+                    type="number"
+                    value="30">
             </div>
 
-            <div
-                id="fatherExtra"
-                class="segment extra">
+            <div class="field">
+                <label>🧒 Tuổi con hiện tại</label>
+                <input
+                    id="childInput"
+                    type="number"
+                    value="10">
             </div>
 
+        </div>
+
+        <div id="timeLabel">
+            📍 Hiện tại
+        </div>
+
+        <div class="slider-row">
+
+            <button
+                class="step-btn"
+                id="minusBtn">
+                −
+            </button>
+
+            <input
+                id="yearSlider"
+                type="range"
+                min="-20"
+                max="20"
+                value="0">
+
+            <button
+                class="step-btn"
+                id="plusBtn">
+                +
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- BỐ -->
+
+    <div class="age-card">
+
+        <div class="person-title">
+            <div class="avatar">👨</div>
+            <h2>
+                Bố (
+                <span id="fatherAge">
+                    30
+                </span>
+                tuổi)
+            </h2>
         </div>
 
         <div
-            id="fatherMarker"
-            class="marker">
+            class="bar-model"
+            id="fatherBar">
 
-            <div class="marker-label">
-                Hiện tại
+            <div
+                id="equalBar"
+                class="equal-bar">
+            </div>
+
+            <div
+                id="diffBar"
+                class="diff-bar">
+                +20 tuổi
+            </div>
+
+        </div>
+
+        <div class="brackets">
+
+            <div
+                id="equalBracket"
+                class="bracket blue">
+                Bằng tuổi con
+            </div>
+
+            <div
+                id="diffBracket"
+                class="bracket red">
+                Hơn con 20 tuổi
             </div>
 
         </div>
 
     </div>
 
-</div>
+    <!-- CON -->
 
-<!-- CON -->
+    <div class="age-card">
 
-<div class="row">
+        <div class="person-title">
+            <div class="avatar">🧒</div>
 
-    <div
-        id="childLabel"
-        class="label">
-        🧒 Con (10 tuổi)
-    </div>
+            <h2>
+                Con (
+                <span id="childAge">
+                    10
+                </span>
+                tuổi)
+            </h2>
 
-    <div class="bar-wrapper">
+        </div>
 
-        <div class="bar">
+        <div class="bar-model">
 
             <div
                 id="childBar"
-                class="segment child">
+                class="child-bar">
             </div>
 
         </div>
 
-        <div
-            id="childMarker"
-            class="marker">
+        <div class="brackets">
 
-            <div class="marker-label">
-                Hiện tại
+            <div
+                id="childBracket"
+                class="bracket orange">
+                Tuổi con
             </div>
 
         </div>
 
     </div>
 
-</div>
+    <!-- EQUATION -->
 
-<div
-    id="formula"
-    class="formula">
-</div>
+    <div class="equation-card">
 
-<div
-    id="note"
-    class="note">
-</div>
+        <div class="equation">
+
+            <span
+                id="eqFather"
+                class="eq-father">
+                30
+            </span>
+
+            =
+
+            <span
+                id="eqChild"
+                class="eq-child">
+                10
+            </span>
+
+            +
+
+            <span
+                id="eqDiff"
+                class="eq-diff">
+                20
+            </span>
+
+        </div>
+
+        <div class="equation-desc">
+            👨 Tuổi bố = Tuổi con + Hiệu tuổi
+        </div>
+
+    </div>
+
+    <!-- KNOWLEDGE -->
+
+    <div class="knowledge-card">
+
+        <h3>
+            💡 Điều em cần nhớ
+        </h3>
+
+        <div
+            id="tip1"
+            class="tip">
+        </div>
+
+        <div class="tip">
+            Khi thời gian trôi qua, bố và con cùng tăng thêm số tuổi như nhau.
+        </div>
+
+        <div class="tip">
+            Tuổi bố = Tuổi con + Hiệu tuổi.
+        </div>
+
+    </div>
 
 </div>
 
 <script>
 
-const scale = 12;
+const SCALE = 18;
 
-const slider = document.getElementById("slider");
-const plusBtn = document.getElementById("plusBtn");
-const minusBtn = document.getElementById("minusBtn");
+const fatherInput =
+    document.getElementById("fatherInput");
 
-const fatherInput = document.getElementById("fatherInput");
-const childInput = document.getElementById("childInput");
+const childInput =
+    document.getElementById("childInput");
 
-plusBtn.addEventListener("click", () => {
+const slider =
+    document.getElementById("yearSlider");
 
-    let value = Number(slider.value);
+document
+.getElementById("plusBtn")
+.onclick = () => {
 
-    if(value < Number(slider.max)){
-        slider.value = value + 1;
+    if(
+        Number(slider.value)
+        <
+        Number(slider.max)
+    ){
+        slider.value++;
         update();
     }
+};
 
-});
+document
+.getElementById("minusBtn")
+.onclick = () => {
 
-minusBtn.addEventListener("click", () => {
-
-    let value = Number(slider.value);
-
-    if(value > Number(slider.min)){
-        slider.value = value - 1;
+    if(
+        Number(slider.value)
+        >
+        Number(slider.min)
+    ){
+        slider.value--;
         update();
     }
+};
 
-});
+fatherInput.addEventListener(
+    "input",
+    update
+);
+
+childInput.addEventListener(
+    "input",
+    update
+);
+
+slider.addEventListener(
+    "input",
+    update
+);
 
 function update(){
 
@@ -363,11 +613,9 @@ function update(){
     const childNow =
         Number(childInput.value);
 
-    if(fatherNow <= childNow){
-
-        formula.innerHTML =
-            "⚠️ Tuổi bố phải lớn hơn tuổi con";
-
+    if(
+        fatherNow <= childNow
+    ){
         return;
     }
 
@@ -384,68 +632,71 @@ function update(){
         fatherNow - childNow;
 
     if(years === 0){
-        timeText.innerHTML = "📍 Hiện tại";
-    }
-    else if(years > 0){
-        timeText.innerHTML = `⏩ Sau ${years} năm`;
-    }
-    else{
-        timeText.innerHTML = `⏪ ${Math.abs(years)} năm trước`;
+
+        timeLabel.innerHTML =
+            "📍 Hiện tại";
+
+    }else if(years > 0){
+
+        timeLabel.innerHTML =
+            `⏩ Sau ${years} năm`;
+
+    }else{
+
+        timeLabel.innerHTML =
+            `⏪ ${Math.abs(years)} năm trước`;
     }
 
-    fatherLabel.innerHTML =
-        `👨 Bố (${father} tuổi)`;
+    fatherAge.textContent =
+        father;
 
-    childLabel.innerHTML =
-        `🧒 Con (${child} tuổi)`;
+    childAge.textContent =
+        child;
+
+    eqFather.textContent =
+        father;
+
+    eqChild.textContent =
+        child;
+
+    eqDiff.textContent =
+        diff;
+
+    const childWidth =
+        child * SCALE;
+
+    const diffWidth =
+        diff * SCALE;
 
     childBar.style.width =
-        (child * scale) + "px";
+        childWidth + "px";
 
-    fatherSame.style.width =
-        (child * scale) + "px";
+    equalBar.style.width =
+        childWidth + "px";
 
-    fatherExtra.style.width =
-        (diff * scale) + "px";
+    diffBar.style.width =
+        diffWidth + "px";
 
-    fatherExtra.innerHTML =
-        `+ ${diff} tuổi`;
+    diffBar.textContent =
+        "+" + diff + " tuổi";
 
-    fatherMarker.style.left =
-        (fatherNow * scale) + "px";
+    equalBracket.style.width =
+        childWidth + "px";
 
-    childMarker.style.left =
-        (childNow * scale) + "px";
+    diffBracket.style.width =
+        diffWidth + "px";
 
-    formula.innerHTML =
-        `${father} − ${child} = ${diff} tuổi`;
+    childBracket.style.width =
+        childWidth + "px";
 
-    note.innerHTML = `
-        💡 Thanh màu cam biểu diễn tuổi của con.
+    diffBracket.innerHTML =
+        "Hơn con " + diff + " tuổi";
 
-        <br><br>
-
-        🟦 Phần màu xanh của bố dài đúng bằng tuổi của con.
-
-        <br><br>
-
-        🟥 Phần màu đỏ là phần bố nhiều hơn con:
-        <span class="highlight">${diff} tuổi</span>.
-
-        <br><br>
-
-        Đường nét đứt đánh dấu vị trí tuổi hiện tại ban đầu.
-
-        <br><br>
-
-        👉 Hiệu số tuổi luôn là
-        <span class="highlight">${diff} tuổi</span>.
-    `;
+    tip1.innerHTML =
+        "Hiệu số tuổi giữa bố và con luôn là <b>"
+        + diff +
+        " tuổi</b>.";
 }
-
-slider.addEventListener("input", update);
-fatherInput.addEventListener("input", update);
-childInput.addEventListener("input", update);
 
 update();
 
@@ -453,4 +704,4 @@ update();
 
 </body>
 </html>
-```
+
