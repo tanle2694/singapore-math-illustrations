@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* ----------------------------------------------------------------
+   Design tokens — "exercise notebook" theme: warm paper, crayon
+   accents, a display face with a hand-crafted wonk + a clean
+   Vietnamese-friendly text face.
+------------------------------------------------------------------ */
+
+@theme {
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f7efe0;
+  --color-paper-deep: #ecddc2;
+  --color-ink: #2a2530;
+  --color-ink-soft: #7d7363;
+  --color-card: #fffbf3;
+  --color-card-line: #e9ddc4;
+
+  --color-coral: #ef6f5b;
+  --color-indigo: #4f6df5;
+  --color-meadow: #2f9e6e;
+  --color-sun: #ef9d0e;
+}
+
+:root {
+  color-scheme: light;
+  --accent: var(--color-indigo);
+  /* derived from --accent (not a fixed color) so overriding --accent on the
+     shell automatically re-tints every descendant that reads these */
+  --accent-deep: color-mix(in oklch, var(--accent) 80%, black);
+  --accent-soft: color-mix(in oklch, var(--accent) 16%, white);
+  --shadow-card:
+    0 16px 38px -16px rgba(42, 36, 30, 0.38),
+    0 3px 10px -4px rgba(42, 36, 30, 0.16);
+  --shadow-pop: 0 26px 60px -18px rgba(42, 36, 30, 0.42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(42, 37, 30, 0.12) 1.4px,
+    transparent 0
+  );
+  background-size: 28px 28px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: color-mix(in oklch, var(--accent) 38%, transparent);
+  color: var(--color-ink);
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-paper-deep);
+  border-radius: 999px;
+  border: 3px solid var(--color-paper);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-soft);
+}
+
+@layer components {
+  /* index-card / sticker surface used by cards & panels */
+  .paper-card {
+    background: var(--color-card);
+    border: 1.5px solid var(--color-card-line);
+    border-radius: 1.75rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* little washi-tape strip pinned to the corner of a card */
+  .pin-tape {
+    position: absolute;
+    width: 4.5rem;
+    height: 1.55rem;
+    top: -0.65rem;
+    background: color-mix(in oklch, var(--accent) 28%, white 72%);
+    border: 1px solid color-mix(in oklch, var(--accent) 40%, white 60%);
+    box-shadow: 0 6px 14px -8px rgba(42, 36, 30, 0.45);
+    opacity: 0.92;
+  }
+
+  /* themed range input — thumb & track read the active category's accent */
+  .ui-slider {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--color-paper-deep);
+    outline: none;
+    cursor: pointer;
+  }
+  .ui-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--color-card);
+    box-shadow: 0 4px 12px -2px color-mix(in oklch, var(--accent) 65%, transparent);
+    cursor: pointer;
+  }
+  .ui-slider::-moz-range-thumb {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--color-card);
+    box-shadow: 0 4px 12px -2px color-mix(in oklch, var(--accent) 65%, transparent);
+    cursor: pointer;
+  }
+  .ui-slider::-moz-range-track {
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--color-paper-deep);
+  }
+  .ui-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* sticker-style resting tilt that straightens on hover/focus — angle supplied
+     per-instance via the --tilt custom property so Tailwind's static utilities
+     (which can't see runtime values) stay out of the way. */
+  .tilt-card {
+    rotate: var(--tilt, 0deg);
+    transition:
+      rotate 0.4s cubic-bezier(0.21, 1.02, 0.27, 1),
+      translate 0.3s ease,
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .tilt-card:hover,
+  .tilt-card:focus-visible {
+    rotate: 0deg;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-rise-in {
+  animation: rise-in 0.7s cubic-bezier(0.21, 1.02, 0.27, 1) both;
+}
+.animate-wiggle {
+  animation: wiggle 2.8s ease-in-out infinite;
+}
+.animate-float {
+  animation: float-y 4.6s ease-in-out infinite;
+}
+.animate-pop-in {
+  animation: pop-in 0.5s cubic-bezier(0.21, 1.02, 0.27, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
